@@ -5,7 +5,7 @@ export const initPhysics = () => {
   const world = new CANNON.World();
 
   // Set the gravity for the world (e.g., Earth gravity in the negative y direction)
-  world.gravity.set(0, -9.82, 0);
+  world.gravity.set(0, 0, 0);
 
   // Use the NaiveBroadphase algorithm for collision detection
   world.broadphase = new CANNON.NaiveBroadphase();

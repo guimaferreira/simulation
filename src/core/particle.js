@@ -9,8 +9,6 @@ export const createParticle = (scene, world, options = {}) => {
     radius = 1, // Default radius of the particle
     color = 0xff0000, // Default color red
   } = options;
-  // const velocity = { x: 1000, y: 1, z: 1 };
-  console.log(velocity);
 
   // Three.js visual representation
   const geometry = new THREE.SphereGeometry(radius, 32, 32);

@@ -1,9 +1,9 @@
 import { initScene } from "./render/sceneManager.js";
 import { initPhysics } from "./physics/physicsEngine.js";
 import Universe from "./core/universe.js"; // Ensure this path is correct
-
-// Import CSS styles
 import "../assets/styles/style.css";
+
+const particleCount = 500;
 
 document.addEventListener("DOMContentLoaded", () => {
   // Globals
@@ -58,6 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   init();
   document.querySelector("#startSimulation").addEventListener("click", () => {
-    universe.initializeBigBang(100); // Initialize with 100 particles, for example
+    universe.initializeBigBang(particleCount); // Initialize with 100 particles, for example
   });
 });
