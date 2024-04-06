@@ -21,12 +21,8 @@ export const createParticle = (scene, world, options = {}) => {
   const shape = new CANNON.Sphere(radius);
   // Inside your particle creation logic
   const body = new CANNON.Body({
-    mass: options.mass,
-    position: new CANNON.Vec3(
-      options.position.x,
-      options.position.y,
-      options.position.z
-    ),
+    mass: mass,
+    position: new CANNON.Vec3(position.x, position.y, position.z),
   });
   body.velocity.set(velocity.x, velocity.y, velocity.z);
 
