@@ -54,4 +54,5 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   init();
+  universe.initializeBigBang(100); // Initialize with 100 particles, for example
 });
