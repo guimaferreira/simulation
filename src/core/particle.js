@@ -5,6 +5,7 @@ export const createParticle = (scene, world, options = {}) => {
   const {
     mass = 1, // Default mass of 1
     position = { x: 0, y: 0, z: 0 }, // Default position at the origin
+    velocity = { x: 0, y: 0, z: 0 }, // Default velocity
     radius = 1, // Default radius of the particle
     color = 0xff0000, // Default color red
   } = options;
@@ -18,9 +19,19 @@ export const createParticle = (scene, world, options = {}) => {
 
   // Cannon.js physical representation
   const shape = new CANNON.Sphere(radius);
-  const body = new CANNON.Body({ mass: mass });
+  // Inside your particle creation logic
+  const body = new CANNON.Body({
+    mass: options.mass,
+    position: new CANNON.Vec3(
+      options.position.x,
+      options.position.y,
+      options.position.z
+    ),
+  });
+  body.velocity.set(velocity.x, velocity.y, velocity.z);
+
   body.addShape(shape);
-  body.position.set(position.x, position.y, position.z);
+
   world.addBody(body);
 
   // Return both representations for further use
