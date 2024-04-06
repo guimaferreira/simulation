@@ -9,6 +9,8 @@ export const createParticle = (scene, world, options = {}) => {
     radius = 1, // Default radius of the particle
     color = 0xff0000, // Default color red
   } = options;
+  // const velocity = { x: 1000, y: 1, z: 1 };
+  console.log(velocity);
 
   // Three.js visual representation
   const geometry = new THREE.SphereGeometry(radius, 32, 32);
@@ -19,11 +21,19 @@ export const createParticle = (scene, world, options = {}) => {
 
   // Cannon.js physical representation
   const shape = new CANNON.Sphere(radius);
-  const body = new CANNON.Body({ mass: mass });
+  // Inside your particle creation logic
+  const body = new CANNON.Body({
+    mass: options.mass,
+    position: new CANNON.Vec3(
+      options.position.x,
+      options.position.y,
+      options.position.z
+    ),
+  });
+  body.velocity.set(velocity.x, velocity.y, velocity.z);
+
   body.addShape(shape);
 
-  body.position.set(position.x, position.y, position.z);
-  body.velocity.set(velocity.x, velocity.y, velocity.z);
   world.addBody(body);
 
   // Return both representations for further use

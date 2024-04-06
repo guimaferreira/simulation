@@ -1,4 +1,5 @@
 import * as CANNON from "cannon";
+import * as THREE from "three";
 import { createParticle } from "./particle.js";
 
 export default class Universe {
@@ -14,43 +15,27 @@ export default class Universe {
   }
 
   initializeBigBang(numberOfParticles) {
-    const center = { x: 0, y: 0, z: 0 }; // Central point of the Big Bang
+    const origin = { x: 0, y: 0, z: 0 }; // Central point of the Big Bang
     for (let i = 0; i < numberOfParticles; i++) {
-      // Generate random positions around the center
-      let position = {
-        x: (Math.random() - 0.5) * 10, // Spread particles around the center
-        y: (Math.random() - 0.5) * 10,
-        z: (Math.random() - 0.5) * 10,
-      };
+      // Generate a random direction
+      let direction = new THREE.Vector3(
+        Math.random() - 0.5,
+        Math.random() - 0.5,
+        Math.random() - 0.5
+      ).normalize();
 
-      // Calculate direction vector from the center to the particle's position
-      let direction = {
-        x: position.x - center.x,
-        y: position.y - center.y,
-        z: position.z - center.z,
-      };
-
-      // Normalize the direction
-      let magnitude = Math.sqrt(
-        direction.x ** 2 + direction.y ** 2 + direction.z ** 2
-      );
-      let normalizedDirection = {
-        x: direction.x / magnitude,
-        y: direction.y / magnitude,
-        z: direction.z / magnitude,
-      };
-
-      // Assign velocity based on direction (magnitude can be based on distance from center or random)
+      // Optional: Vary the speed
+      const speed = Math.random() * 5 + 1; // Random speed between 1 and 6
       let velocity = {
-        x: normalizedDirection.x * (Math.random() * 5 + 1), // Random velocity magnitude
-        y: normalizedDirection.y * (Math.random() * 5 + 1),
-        z: normalizedDirection.z * (Math.random() * 5 + 1),
+        x: direction.x * speed,
+        y: direction.y * speed,
+        z: direction.z * speed,
       };
 
-      // Create the particle with initial position and velocity
+      // Create the particle at the origin with the computed velocity
       this.addParticle({
-        position: position,
-        velocity: velocity, // Ensure your particle creation can handle velocity
+        position: origin,
+        velocity: velocity,
         mass: 1, // Example mass
         radius: 0.1, // Example radius
         color: 0xff0000, // Example color
@@ -76,6 +61,8 @@ export default class Universe {
 
   update() {
     // Iterate through all particles and update their mesh positions to match the body positions
+
+    // Update mesh positions to match body positions
     this.particles.forEach(({ mesh, body }) => {
       mesh.position.copy(body.position);
       mesh.quaternion.copy(body.quaternion);

@@ -22,12 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Create an initial particle to start the simulation
     // Assuming createParticle is now a method of Universe class or managed internally by Universe
-    universe.addParticle({
-      mass: 1,
-      position: { x: 0, y: 0, z: 0 },
-      radius: 1,
-      color: 0xff0000,
-    });
+    // universe.addParticle({
+    //   mass: 1,
+    //   position: { x: 0, y: 0, z: 0 },
+    //   radius: 1,
+    //   color: 0xff0000,
+    // });
 
     // Start the animation loop
     lastTime = new Date().getTime();
@@ -44,6 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Update physics through the universe instance
     universe.updateForces(delta); // Assuming you have or will add this method
 
+    world.step(delta);
+    universe.update();
+
     // Render scene
     renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -54,5 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   init();
-  universe.initializeBigBang(100); // Initialize with 100 particles, for example
+  document.querySelector("#startSimulation").addEventListener("click", () => {
+    universe.initializeBigBang(100); // Initialize with 100 particles, for example
+  });
 });
