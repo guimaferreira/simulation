@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Universe Simulation</title>
+    <!-- Parcel will automatically link your styles here -->
+  </head>
+  <body>
+    <div id="simulation-container">
+      <canvas id="universeCanvas"></canvas>
+    </div>
+
+    <!-- Parcel automatically injects your JavaScript here -->
+    <script src="src/main.js" type="module"></script>
+
+    <!-- UI elements, if any, can be added here -->
+    <div id="ui-controls">
+      <!-- Example: Button to start or reset the simulation -->
+      <button id="startSimulation">Start Simulation</button>
+    </div>
+
+    <script>
+      // Basic setup or interaction logic can go here, if needed.
+      document
+        .getElementById("startSimulation")
+        .addEventListener("click", function () {
+          // Placeholder: Start or reset your simulation logic
+          console.log("Simulation started or reset");
+        });
+    </script>
+  </body>
+</html>

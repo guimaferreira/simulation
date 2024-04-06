@@ -1,0 +1,41 @@
+/* Reset some basic elements */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling */
+  height: 100%;
+  background-color: #000; /* Dark background for a space-like feel */
+}
+
+canvas {
+  display: block; /* Remove default margin */
+  background-color: #111; /* Slightly lighter than body background for contrast */
+  width: 100%;
+  height: 100%;
+}
+
+/* Basic styles for UI controls if any */
+#ui-controls {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #fff; /* Light color for visibility */
+}
+
+button {
+  background-color: #333; /* Dark backgrounds for buttons */
+  color: #fff; /* Light text color for contrast */
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  border-radius: 5px; /* Rounded corners for a modern look */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+button:hover {
+  background-color: #444; /* Slightly lighter background on hover */
+}
+
+/* Add more styles based on your UI elements and preferences */
