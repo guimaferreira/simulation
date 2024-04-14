@@ -24,7 +24,6 @@
         background: rgba(255, 255, 255, 0.8);
         padding: 10px;
         border-radius: 8px;
-        display: none;
         z-index: 10;
       }
       label {
@@ -48,15 +47,15 @@
     <button id="toggle-controls">☰ Controls</button>
     <div id="controls">
       <label for="amplitude"
-        >Amplitude: <span id="amplitude-value">400</span></label
+        >Amplitude: <span id="amplitude-value">470</span></label
       >
       <input
         type="range"
         id="amplitude"
-        min="10"
-        max="500"
-        value="400"
-        step="10"
+        min="0"
+        max="10000"
+        value="470"
+        step="100"
       />
 
       <label for="frequency"
@@ -65,10 +64,10 @@
       <input
         type="range"
         id="frequency"
-        min="1"
-        max="10"
+        min="0"
+        max="9770"
         value="2"
-        step="0.1"
+        step="50"
       />
 
       <label for="phase">Phase: <span id="phase-value">0</span></label>
@@ -80,19 +79,19 @@
         value="0"
         step="0.1"
       />
-
+      2000
       <label for="points">Points: <span id="points-value">1000</span></label>
       <input
         type="range"
         id="points"
         min="100"
-        max="2000"
-        value="1000"
+        max="10000"
+        value="2000"
         step="100"
       />
 
       <label for="size">Size: <span id="size-value">2</span> px</label>
-      <input type="range" id="size" min="1" max="10" value="2" step="1" />
+      <input type="range" id="size" min="1" max="100" value="10" step="1" />
 
       <label for="opacity">Opacity: <span id="opacity-value">33</span>%</label>
       <input type="range" id="opacity" min="1" max="100" value="33" step="1" />
@@ -126,7 +125,7 @@
 
         waveData.forEach((point) => {
           const x = point.x * scaleFactor;
-          const y = (point.y + amplitude) * (canvas.height / (2 * amplitude)); // Center and scale the wave
+          const y = point.y + amplitude; //* (canvas.height / (2 * amplitude)); // Center and scale the wave
           ctx.fillRect(x, y, size, size);
         });
       }
@@ -148,6 +147,15 @@
       ];
 
       function updateValues() {
+        // Get slider elements
+        let amplitudeSlider = document.getElementById("amplitude");
+        let frequencySlider = document.getElementById("frequency");
+        let phaseSlider = document.getElementById("phase");
+        let pointsSlider = document.getElementById("points");
+        let sizeSlider = document.getElementById("size");
+        let opacitySlider = document.getElementById("opacity");
+
+        // Update placeholders
         document.getElementById("amplitude-value").textContent =
           amplitudeSlider.value;
         document.getElementById("frequency-value").textContent =
@@ -159,6 +167,15 @@
         document.getElementById("opacity-value").textContent =
           opacitySlider.value;
 
+        // Store values in session storage
+        sessionStorage.setItem("amplitude", amplitudeSlider.value);
+        sessionStorage.setItem("frequency", frequencySlider.value);
+        sessionStorage.setItem("phase", phaseSlider.value);
+        sessionStorage.setItem("points", pointsSlider.value);
+        sessionStorage.setItem("size", sizeSlider.value);
+        sessionStorage.setItem("opacity", opacitySlider.value);
+
+        // Call a function to redraw the graph
         draw(
           +amplitudeSlider.value,
           +frequencySlider.value,
@@ -167,6 +184,43 @@
           +sizeSlider.value,
           +opacitySlider.value
         );
+      }
+
+      function setSliderValues() {
+        console.log("Setting slider values");
+        // Read values from session storage
+        let amplitude = sessionStorage.getItem("amplitude");
+        let frequency = sessionStorage.getItem("frequency");
+        let phase = sessionStorage.getItem("phase");
+        let points = sessionStorage.getItem("points");
+        let size = sessionStorage.getItem("size");
+        let opacity = sessionStorage.getItem("opacity");
+
+        // Set slider and placeholder values if they are stored
+        if (amplitude !== null) {
+          document.getElementById("amplitude").value = amplitude;
+          document.getElementById("amplitude-value").textContent = amplitude;
+        }
+        if (frequency !== null) {
+          document.getElementById("frequency").value = frequency;
+          document.getElementById("frequency-value").textContent = frequency;
+        }
+        if (phase !== null) {
+          document.getElementById("phase").value = phase;
+          document.getElementById("phase-value").textContent = phase;
+        }
+        if (points !== null) {
+          document.getElementById("points").value = points;
+          document.getElementById("points-value").textContent = points;
+        }
+        if (size !== null) {
+          document.getElementById("size").value = size;
+          document.getElementById("size-value").textContent = size;
+        }
+        if (opacity !== null) {
+          document.getElementById("opacity").value = opacity;
+          document.getElementById("opacity-value").textContent = opacity;
+        }
       }
 
       sliders.forEach((slider) =>
@@ -190,7 +244,12 @@
         updateValues();
       }
       window.addEventListener("resize", resizeCanvas);
-      resizeCanvas(); // Initial resize
+      // Call setSliderValues when the page loads
+      window.onload = function () {
+        setSliderValues();
+
+        resizeCanvas(); // Initial resize
+      };
     </script>
   </body>
 </html>
