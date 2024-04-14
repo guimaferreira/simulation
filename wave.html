@@ -53,24 +53,25 @@
         frequency,
         phase,
         points,
-        red,
-        green,
-        blue,
-        opacity
+        entropy
       ) {
         const wavePoints = [];
         const step = (2 * Math.PI) / points;
         for (let i = 0; i < points; i++) {
+          // Entropy affects the amplitude, frequency, and phase slightly differently at each point
+          const entropyEffectAmplitude =
+            amplitude + (Math.random() - 0.5) * 2 * entropy * amplitude;
+          const entropyEffectFrequency =
+            frequency + (Math.random() - 0.5) * 2 * entropy;
+          const entropyEffectPhase =
+            phase + (Math.random() - 0.5) * 2 * entropy;
+
           const x = i * step;
-          const y = amplitude * Math.sin(frequency * x + phase);
-          const z = 0; // Assuming a 2D wave, z will be constant
-          const rgba = {
-            r: red,
-            g: green,
-            b: blue,
-            a: opacity / 100,
-          };
-          wavePoints.push({ x, y, z, rgba });
+          const y =
+            entropyEffectAmplitude *
+            Math.sin(entropyEffectFrequency * x + entropyEffectPhase);
+
+          wavePoints.push({ x: x, y: y, z: 0 }); // Assuming a flat z-coordinate since it's a 2D simulation
         }
         return wavePoints;
       }
