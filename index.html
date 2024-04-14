@@ -18,6 +18,67 @@
     <div id="ui-controls">
       <!-- Example: Button to start or reset the simulation -->
       <button id="startSimulation">Start Simulation</button>
+      <button id="toggle-controls">☰ Controls</button>
+      <div id="controls">
+        <label for="amplitude"
+          >Amplitude: <span id="amplitude-value">400</span></label
+        >
+        <input
+          type="range"
+          id="amplitude"
+          min="10"
+          max="500"
+          value="400"
+          step="10"
+        />
+
+        <label for="frequency"
+          >Frequency: <span id="frequency-value">2</span></label
+        >
+        <input
+          type="range"
+          id="frequency"
+          min="1"
+          max="10"
+          value="2"
+          step="0.1"
+        />
+
+        <label for="phase">Phase: <span id="phase-value">0</span></label>
+        <input
+          type="range"
+          id="phase"
+          min="0"
+          max="2 * Math.PI"
+          value="0"
+          step="0.1"
+        />
+
+        <label for="points">Points: <span id="points-value">1000</span></label>
+        <input
+          type="range"
+          id="points"
+          min="100"
+          max="2000"
+          value="1000"
+          step="100"
+        />
+
+        <label for="size">Size: <span id="size-value">2</span> px</label>
+        <input type="range" id="size" min="1" max="10" value="2" step="1" />
+
+        <label for="opacity"
+          >Opacity: <span id="opacity-value">33</span>%</label
+        >
+        <input
+          type="range"
+          id="opacity"
+          min="1"
+          max="100"
+          value="33"
+          step="1"
+        />
+      </div>
     </div>
 
     <script>
