@@ -45,194 +45,162 @@
   </head>
   <body>
     <button id="toggle-controls">☰ Controls</button>
-    <div id="controls">
-      <label for="amplitude"
-        >Amplitude: <span id="amplitude-value">470</span></label
-      >
-      <input
-        type="range"
-        id="amplitude"
-        min="0"
-        max="10000"
-        value="470"
-        step="100"
-      />
-
-      <label for="frequency"
-        >Frequency: <span id="frequency-value">2</span></label
-      >
-      <input
-        type="range"
-        id="frequency"
-        min="0"
-        max="9770"
-        value="2"
-        step="50"
-      />
-
-      <label for="phase">Phase: <span id="phase-value">0</span></label>
-      <input type="range" id="phase" min="0" max="6.283" value="0" step="0.1" />
-
-      <label for="points">Points: <span id="points-value">2000</span></label>
-      <input
-        type="range"
-        id="points"
-        min="100"
-        max="10000"
-        value="2000"
-        step="100"
-      />
-
-      <label for="size">Size: <span id="size-value">2</span> px</label>
-      <input type="range" id="size" min="1" max="100" value="10" step="1" />
-
-      <label for="opacity">Opacity: <span id="opacity-value">33</span>%</label>
-      <input type="range" id="opacity" min="1" max="100" value="33" step="1" />
-
-      <label for="red">Red: <span id="red-value">100</span>%</label>
-      <input type="range" id="red" min="0" max="100" value="100" step="1" />
-
-      <label for="green">Green: <span id="green-value">100</span>%</label>
-      <input type="range" id="green" min="0" max="100" value="100" step="1" />
-
-      <label for="blue">Blue: <span id="blue-value">100</span>%</label>
-      <input type="range" id="blue" min="0" max="100" value="100" step="1" />
-    </div>
+    <div id="controls"></div>
     <canvas id="waveCanvas"></canvas>
     <script>
-      function simulateWaveFunction(amplitude, frequency, phase, points) {
+      function simulateWaveFunction(
+        amplitude,
+        frequency,
+        phase,
+        points,
+        red,
+        green,
+        blue,
+        opacity
+      ) {
         const wavePoints = [];
         const step = (2 * Math.PI) / points;
         for (let i = 0; i < points; i++) {
           const x = i * step;
           const y = amplitude * Math.sin(frequency * x + phase);
-          wavePoints.push({ x: x, y: y });
+          const z = 0; // Assuming a 2D wave, z will be constant
+          const rgba = {
+            r: red,
+            g: green,
+            b: blue,
+            a: opacity / 100,
+          };
+          wavePoints.push({ x, y, z, rgba });
         }
         return wavePoints;
       }
 
-      function draw(
-        amplitude,
-        frequency,
-        phase,
-        points,
-        size,
-        opacity,
-        red,
-        green,
-        blue
-      ) {
+      function draw(options) {
+        const {
+          amplitude,
+          frequency,
+          phase,
+          points,
+          size,
+          opacity,
+          red,
+          green,
+          blue,
+        } = options;
+
         const canvas = document.getElementById("waveCanvas");
         const ctx = canvas.getContext("2d");
         const waveData = simulateWaveFunction(
           amplitude,
           frequency,
           phase,
-          points
+          points,
+          red,
+          green,
+          blue,
+          opacity
         );
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = `rgba(${red}, ${green}, ${blue}, ${opacity / 100})`;
 
         const scaleFactor = canvas.width / (2 * Math.PI); // Scale factor based on canvas width
 
-        waveData.forEach((point) => {
-          const x = point.x * scaleFactor;
-          const y = point.y + canvas.height / 2; // Center the wave vertically
-          ctx.fillRect(x, y, size, size);
+        waveData.forEach(({ x, y, z, rgba }) => {
+          ctx.fillStyle = `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`;
+          const canvasX = x * scaleFactor;
+          const canvasY = y + canvas.height / 2; // Center the wave vertically
+          ctx.fillRect(canvasX, canvasY, size, size);
         });
       }
 
       // Update all values from the sliders
-      function updateValues() {
-        document.getElementById("amplitude-value").textContent =
-          amplitudeSlider.value;
-        document.getElementById("frequency-value").textContent =
-          frequencySlider.value;
-        document.getElementById("phase-value").textContent = phaseSlider.value;
-        document.getElementById("points-value").textContent =
-          pointsSlider.value;
-        document.getElementById("size-value").textContent = sizeSlider.value;
-        document.getElementById("opacity-value").textContent =
-          opacitySlider.value;
-        document.getElementById("red-value").textContent = redSlider.value;
-        document.getElementById("green-value").textContent = greenSlider.value;
-        document.getElementById("blue-value").textContent = blueSlider.value;
 
-        sessionStorage.setItem("amplitude", amplitudeSlider.value);
-        sessionStorage.setItem("frequency", frequencySlider.value);
-        sessionStorage.setItem("phase", phaseSlider.value);
-        sessionStorage.setItem("points", pointsSlider.value);
-        sessionStorage.setItem("size", sizeSlider.value);
-        sessionStorage.setItem("opacity", opacitySlider.value);
-        sessionStorage.setItem("red", redSlider.value);
-        sessionStorage.setItem("green", greenSlider.value);
-        sessionStorage.setItem("blue", blueSlider.value);
+      const controlsConfig = [
+        { id: "amplitude", min: 0, max: 10000, step: 100, value: 470 },
+        { id: "frequency", min: 0, max: 9770, step: 50, value: 2 },
+        { id: "phase", min: 0, max: 6.283, step: 0.1, value: 0, unit: " rad" },
+        { id: "points", min: 100, max: 10000, step: 100, value: 2000 },
+        { id: "size", min: 1, max: 100, step: 1, value: 10, unit: " px" },
+        { id: "opacity", min: 1, max: 100, step: 1, value: 33, unit: "%" },
+        { id: "red", min: 0, max: 100, step: 1, value: 100, unit: "%" },
+        { id: "green", min: 0, max: 100, step: 1, value: 100, unit: "%" },
+        { id: "blue", min: 0, max: 100, step: 1, value: 100, unit: "%" },
+        { id: "entropy", min: 0, max: 10, step: 0.1, value: 0.5, unit: "" },
+      ];
 
-        draw(
-          +amplitudeSlider.value,
-          +frequencySlider.value,
-          +phaseSlider.value,
-          +pointsSlider.value,
-          +sizeSlider.value,
-          +opacitySlider.value,
-          Math.round(redSlider.value * 2.55),
-          Math.round(greenSlider.value * 2.55),
-          Math.round(blueSlider.value * 2.55)
-        );
-      }
+      window.onload = function () {
+        const controlsContainer = document.getElementById("controls");
+        controlsConfig.forEach((config) => {
+          const control = new Control(config);
+          control.init(controlsContainer);
+        });
+        updateWave(); // Draw initial wave
+      };
 
-      // Initialize and add listeners to sliders
-      const amplitudeSlider = document.getElementById("amplitude");
-      const frequencySlider = document.getElementById("frequency");
-      const phaseSlider = document.getElementById("phase");
-      const pointsSlider = document.getElementById("points");
-      const sizeSlider = document.getElementById("size");
-      const opacitySlider = document.getElementById("opacity");
-      const redSlider = document.getElementById("red");
-      const greenSlider = document.getElementById("green");
-      const blueSlider = document.getElementById("blue");
-
-      [
-        amplitudeSlider,
-        frequencySlider,
-        phaseSlider,
-        pointsSlider,
-        sizeSlider,
-        opacitySlider,
-        redSlider,
-        greenSlider,
-        blueSlider,
-      ].forEach((slider) => {
-        slider.addEventListener("input", updateValues);
-      });
-
-      // Set initial values from session storage
-      function setSliderValues() {
-        const sliderNames = [
-          "amplitude",
-          "frequency",
-          "phase",
-          "points",
-          "size",
-          "opacity",
-          "red",
-          "green",
-          "blue",
-        ];
-        sliderNames.forEach((name) => {
-          let value = sessionStorage.getItem(name);
-          if (value !== null) {
-            let slider = document.getElementById(name);
-            slider.value = value;
-            document.getElementById(name + "-value").textContent = value;
-          }
+      function updateWave() {
+        draw({
+          amplitude: +sessionStorage.getItem("amplitude"),
+          frequency: +sessionStorage.getItem("frequency"),
+          phase: +sessionStorage.getItem("phase"),
+          points: +sessionStorage.getItem("points"),
+          size: +sessionStorage.getItem("size"),
+          opacity: +sessionStorage.getItem("opacity"),
+          red: Math.round(sessionStorage.getItem("red") * 2.55),
+          green: Math.round(sessionStorage.getItem("green") * 2.55),
+          blue: Math.round(sessionStorage.getItem("blue") * 2.55),
+          entropy: +sessionStorage.getItem("entropy"),
         });
       }
 
-      window.onload = function () {
-        setSliderValues();
-        updateValues(); // Draw initial wave
-      };
+      class Control {
+        constructor({ id, min, max, step, value, unit = "", type = "range" }) {
+          this.id = id;
+          this.min = min;
+          this.max = max;
+          this.step = step;
+          this.value = value;
+          this.unit = unit;
+          this.type = type;
+          this.slider = null;
+          this.valueDisplay = null;
+        }
+
+        init(container) {
+          const wrapper = document.createElement("div");
+          const label = document.createElement("label");
+          label.htmlFor = this.id;
+          label.textContent = `${
+            this.id.charAt(0).toUpperCase() + this.id.slice(1)
+          }: `;
+
+          this.valueDisplay = document.createElement("span");
+          this.valueDisplay.id = `${this.id}-value`;
+          this.valueDisplay.textContent = this.value + this.unit;
+
+          this.slider = document.createElement("input");
+          this.slider.type = this.type;
+          this.slider.id = this.id;
+          this.slider.min = this.min;
+          this.slider.max = this.max;
+          this.slider.step = this.step;
+          this.slider.value = this.value;
+
+          wrapper.appendChild(label);
+          label.appendChild(this.valueDisplay);
+          wrapper.appendChild(this.slider);
+          container.appendChild(wrapper);
+
+          this.slider.addEventListener("input", () => {
+            this.updateValue();
+          });
+        }
+
+        updateValue() {
+          const value = this.slider.value;
+          this.valueDisplay.textContent = value + this.unit;
+          sessionStorage.setItem(this.id, value);
+          updateWave(); // Assuming a global function to update the canvas
+        }
+      }
     </script>
   </body>
 </html>
