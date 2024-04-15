@@ -1,4 +1,5 @@
 window.onload = function () {
+  const zoomFactor = 0.05;
   let random;
   let particles = [];
   let input;
@@ -17,10 +18,16 @@ window.onload = function () {
   const { width, height } = canvas;
   console.log({ width, height });
 
-  function setArea([fromX, fromY, toX, toY]) {
+  function setArea(matrix) {
+    const [fromX, fromY, toX, toY] = matrix;
+    console.log("Area", matrix);
     area = { from: { x: fromX, y: fromY }, to: { x: toX, y: toY } };
-    partcilesOfInterst = crop(particles);
-    draw(partcilesOfInterst, input, area);
+    // if (scale !== input.scale) {
+    //   scale = input.scale;
+    //   const scaleFactor = 1 + input.scale * zoomFactor;
+    //   area = newArea = calculateArea(scaleFactor);
+    // }
+    draw(particles, input, area);
   }
 
   function waveFunction(input) {
@@ -40,13 +47,14 @@ window.onload = function () {
     }
 
     const particles = [];
-    const step = width / points; //(2 * Math.PI) / points;
+    const step = ((2 * Math.PI) / points) * (width - 100);
     // console.log({ entropy, random, precision });
     for (let i = 0; i < points; i++) {
-      random = (entropy * i * phase) / points / 100;
+      random = (entropy * i * phase) / points / 100 + 1;
 
       const x = round(i * step);
-      const y = round(amplitude * Math.sin(frequency * x + phase));
+      const y =
+        round(amplitude * Math.sin(frequency * x + phase)) + amplitude * 2;
       const a = Math.abs(round(1 - Math.abs(y) / amplitude)); // Alpha value based on amplitude
       const r = round(255 * random * Math.random(), 0);
       const g = round(255 * random * Math.random(), 0);
@@ -54,7 +62,7 @@ window.onload = function () {
       const particle = { x, y, r, g, b, a };
       particles.push(particle);
     }
-    console.log("Last Random", random, particles[0]);
+    console.log("Last Random", random, particles[particles.length - 1]);
     return particles;
   }
 
@@ -70,37 +78,56 @@ window.onload = function () {
     });
   }
 
+  function calculateArea(scale) {
+    const centerX = (area.from.x + area.to.x) / 2;
+    const centerY = (area.from.y + area.to.y) / 2;
+    const width = (area.to.x - area.from.x) / scale;
+    const height = (area.to.y - area.from.y) / scale;
+    return [
+      centerX - width / 2,
+      centerY - height / 2,
+      centerX + width / 2,
+      centerY + height / 2,
+    ];
+  }
+
   function draw(particles, input) {
-    const { size, opacity } = input;
+    const { size, opacity, scale } = input;
     if (!area) {
       setArea([0, 0, canvas.width, canvas.height]);
     }
-    particles = crop(particles, area);
-    console.log("Draw", area);
+
+    // particles = crop(particles, area);
+
     const { from, to } = area;
     const areaWidth = to.x - from.x;
     const areaHeight = to.y - from.y;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const scaleFactor = canvas.width / areaWidth; // Adjust scale factor based on area width
+    const scaleFactorX = canvas.width / areaWidth; // Adjust scale factor based on area width
+    const scaleFactorY = canvas.height / areaHeight; // Adjust scale factor based on area height
+
+    let rendered = 0;
 
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
       // Translate and scale particle positions relative to the area area
-      const translatedX = (x - from.x) * scaleFactor;
-      const translatedY = (y - from.y) * scaleFactor;
+      const translatedX = (x - from.x) * scaleFactorX;
+      const translatedY = (y - from.y) * scaleFactorY;
 
       // Only draw particles within the area boundaries
       if (x >= from.x && x <= to.x && y >= from.y && y <= to.y) {
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity})`;
         ctx.fillRect(
           translatedX + offsetX * scale,
-          Math.round((translatedY + canvas.height / 2 + offsetY) * scale),
-          size, //* scale,
-          size //* scale
+          translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
+          size,
+          size
         );
+        rendered++;
       }
     });
+    console.log("Rendered", rendered);
   }
 
   // Update all values from the sliders
@@ -117,6 +144,7 @@ window.onload = function () {
     document.getElementById("precision-value").textContent =
       precisionSlider.value;
     document.getElementById("entropy-value").textContent = entropySlider.value;
+    document.getElementById("scale-value").textContent = scaleSlider.value;
 
     sessionStorage.setItem("amplitude", amplitudeSlider.value);
     sessionStorage.setItem("frequency", frequencySlider.value);
@@ -127,6 +155,7 @@ window.onload = function () {
 
     sessionStorage.setItem("precision", precisionSlider.value);
     sessionStorage.setItem("entropy", entropySlider.value);
+    sessionStorage.setItem("scale", scaleSlider.value);
 
     input = {
       amplitude: +amplitudeSlider.value,
@@ -137,6 +166,7 @@ window.onload = function () {
       opacity: +opacitySlider.value,
       precision: +precisionSlider.value,
       entropy: +entropySlider.value,
+      scale: +scaleSlider.value,
     };
 
     particles = waveFunction(input);
@@ -154,6 +184,7 @@ window.onload = function () {
 
   const precisionSlider = document.getElementById("precision");
   const entropySlider = document.getElementById("entropy");
+  const scaleSlider = document.getElementById("scale");
 
   [
     amplitudeSlider,
@@ -162,9 +193,9 @@ window.onload = function () {
     pointsSlider,
     sizeSlider,
     opacitySlider,
-
     precisionSlider,
     entropySlider,
+    scaleSlider,
   ].forEach((slider) => {
     slider.addEventListener("input", updateValues);
   });
@@ -178,9 +209,9 @@ window.onload = function () {
       "points",
       "size",
       "opacity",
-
       "precision",
       "entropy",
+      "scale",
     ];
     sliderNames.forEach((name) => {
       let value = sessionStorage.getItem(name);
@@ -214,11 +245,31 @@ window.onload = function () {
     isDragging = false;
   });
 
-  canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    scale *= e.deltaY > 0 ? 0.9 : 1.1;
-    draw(particles, input);
-  });
+  // canvas.addEventListener("wheel", (e) => {
+  //   e.preventDefault();
+  //   scale *= e.deltaY > 0 ? 0.9 : 1.1;
+  //   console.log("wheel", scale);
+  //   draw(particles, input);
+  // });
+
+  // Helper function to calculate new area based on zoom
+  // canvas.addEventListener("wheel", (e) => {
+  //   e.preventDefault();
+  //   console.log("Current scale before adjustment:", scale, "deltaY:", e.deltaY);
+
+  //   if (e.deltaY < 0) {
+  //     // Zoom in: Decrease the scale
+  //     scale *= -1 + zoomFactor;
+  //   } else {
+  //     // Zoom out: Increase the scale
+  //     scale *= 1 + zoomFactor;
+  //   }
+
+  //   console.log("New scale after adjustment:", scale);
+
+  //   const newArea = calculateArea(scale);
+  //   setArea(newArea);
+  // });
 
   // Touch events for mobile users
   canvas.addEventListener("touchstart", (e) => {
