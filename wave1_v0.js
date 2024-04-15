@@ -68,16 +68,7 @@ window.onload = function () {
   }
 
   function waveFunction(input) {
-    const {
-      amplitude,
-      frequency,
-      phase,
-      points,
-      size,
-      opacity,
-      precision,
-      entropy,
-    } = input;
+    const { amplitude, frequency, phase, points, precision, entropy } = input;
     function round(value, p = precision) {
       const newValue = value + value * random;
       return parseFloat(newValue.toFixed(p));
@@ -87,14 +78,14 @@ window.onload = function () {
     const step = (2 * Math.PI) / points; // * (width - 100);
     // console.log({ entropy, random, precision });
     for (let i = 0; i < points; i++) {
-      random = (entropy * i * phase) / 1000 + 1;
+      random = (entropy * phase * i) / points + 1;
 
       const x = round(i * step);
       const y = round(amplitude * Math.sin(frequency * x + phase));
-      const a = Math.abs(round(1 - Math.abs(y) / amplitude)); // Alpha value based on amplitude
-      const r = round(255 * random * Math.random(), 0);
-      const g = round(255 * random * Math.random(), 0);
-      const b = round(255 * random * Math.random(), 0);
+      const a = 1 - Math.abs(y) / 2 / amplitude / 100; // Alpha value based on amplitude
+      const r = round((255 * Math.random()) / random, 0);
+      const g = round((255 * Math.random()) / random, 0);
+      const b = round((255 * Math.random()) / random, 0);
       const particle = { x, y, r, g, b, a };
       particles.push(particle);
     }
@@ -130,7 +121,7 @@ window.onload = function () {
     const centerSize = 1 * scale;
     const centerHalf = centerSize / 2;
 
-    ctx.fillStyle = `#FF0000`;
+    ctx.fillStyle = `rgba(0, 255, 0, 0.1)`;
     ctx.fillRect(
       currentCenter[0] - centerHalf,
       currentCenter[1] - centerHalf, // Adjust y-coordinate to be centered based on the height
@@ -146,6 +137,7 @@ window.onload = function () {
 
       const newX = translatedX + offsetX;
       const newY = translatedY + offsetY + height / 2;
+      // ctx.globalCompositeOperation = "soft-light";
 
       // Only draw particles within the area boundaries
       if (newX >= from.x && newX <= to.x && newY >= from.y && newY <= to.y) {
