@@ -47,14 +47,13 @@ window.onload = function () {
     }
 
     const particles = [];
-    const step = ((2 * Math.PI) / points) * (width - 100);
+    const step = (2 * Math.PI) / points; // * (width - 100);
     // console.log({ entropy, random, precision });
     for (let i = 0; i < points; i++) {
-      random = (entropy * i * phase) / points / 100 + 1;
+      random = (entropy * i * phase) / 1000 + 1;
 
       const x = round(i * step);
-      const y =
-        round(amplitude * Math.sin(frequency * x + phase)) + amplitude * 2;
+      const y = round(amplitude * Math.sin(frequency * x + phase));
       const a = Math.abs(round(1 - Math.abs(y) / amplitude)); // Alpha value based on amplitude
       const r = round(255 * random * Math.random(), 0);
       const g = round(255 * random * Math.random(), 0);
@@ -116,16 +115,16 @@ window.onload = function () {
       const translatedY = (y - from.y) * scaleFactorY;
 
       // Only draw particles within the area boundaries
-      if (x >= from.x && x <= to.x && y >= from.y && y <= to.y) {
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity})`;
-        ctx.fillRect(
-          translatedX + offsetX * scale,
-          translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
-          size,
-          size
-        );
-        rendered++;
-      }
+      // if (x >= from.x && x <= to.x && y >= from.y && y <= to.y) {
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
+      ctx.fillRect(
+        translatedX + offsetX * scale,
+        translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
+        size,
+        size
+      );
+      rendered++;
+      // }
     });
     console.log("Rendered", rendered);
   }
