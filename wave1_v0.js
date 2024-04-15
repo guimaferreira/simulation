@@ -142,13 +142,18 @@ window.onload = function () {
       const newY = translatedY + offsetY + height / 2;
       // ctx.globalCompositeOperation = "soft-light";
 
+      function isBlack(r, g, b) {
+        return r === 0 && g === 0 && b === 0;
+      }
+
       // Only draw particles within the area boundaries
       if (
         newX >= from.x &&
         newX <= to.x &&
         newY >= from.y &&
         newY <= to.y &&
-        a > 0
+        a > 0 && //  Don't calculate alpha 0 particles
+        !isBlack(r, g, b) // Don't draw black particles
       ) {
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
         ctx.fillRect(
