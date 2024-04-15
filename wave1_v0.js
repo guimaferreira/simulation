@@ -133,19 +133,9 @@ window.onload = function () {
     );
 
     let cluster = {};
-
+    console.time("Drawing");
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
-
-      // Translate and scale particle positions relative to the area area
-      const translatedX = (x - from.x) * scaleFactorX;
-      const translatedY = (y - from.y) * scaleFactorY;
-
-      const newX = translatedX + offsetX;
-      const newY = translatedY + offsetY + height / 2;
-      // ctx.globalCompositeOperation = "soft-light";
-
-      // console.log({ newX, newY, x, y, from, to, areaWidth, areaHeight });
 
       function isInside(x, y, from, to) {
         return x >= from.x && x <= to.x && y >= from.y && y <= to.y;
@@ -161,6 +151,16 @@ window.onload = function () {
         a > 0 && //  Don't calculate alpha 0 particles
         !isBlack(r, g, b) // Don't draw black particles
       ) {
+        // Translate and scale particle positions relative to the area area
+        const translatedX = (x - from.x) * scaleFactorX;
+        const translatedY = (y - from.y) * scaleFactorY;
+
+        const newX = translatedX + offsetX;
+        const newY = translatedY + offsetY + height / 2;
+        // ctx.globalCompositeOperation = "soft-light";
+
+        // console.log({ newX, newY, x, y, from, to, areaWidth, areaHeight });
+
         point.cluster = [Math.round(newX), Math.round(newY)];
 
         if (cluster[point.cluster[0]]) {
@@ -184,6 +184,7 @@ window.onload = function () {
         rendered++;
       }
     });
+    console.timeEnd("Drawing");
     console.log("Rendered", rendered);
   }
 
