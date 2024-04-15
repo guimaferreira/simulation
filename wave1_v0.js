@@ -140,7 +140,13 @@ window.onload = function () {
       // ctx.globalCompositeOperation = "soft-light";
 
       // Only draw particles within the area boundaries
-      if (newX >= from.x && newX <= to.x && newY >= from.y && newY <= to.y) {
+      if (
+        newX >= from.x &&
+        newX <= to.x &&
+        newY >= from.y &&
+        newY <= to.y &&
+        a > 0
+      ) {
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
         ctx.fillRect(
           newX, //translatedX + offsetX * scale,
