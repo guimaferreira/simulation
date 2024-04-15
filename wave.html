@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Interactive Wave Function Simulation</title>
+    <style>
+      body,
+      html {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #controls {
+        position: fixed;
+        top: 40px;
+        left: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px;
+        border-radius: 8px;
+        z-index: 10;
+      }
+      label {
+        display: block;
+        margin: 5px 0;
+      }
+      #toggle-controls {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        cursor: pointer;
+        padding: 5px 10px;
+        background: #ddd;
+        border: none;
+        border-radius: 5px;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="toggle-controls">☰ Controls</button>
+    <div id="controls"></div>
+    <canvas id="waveCanvas"></canvas>
+    <script src="wave.js"></script>
+  </body>
+</html>
