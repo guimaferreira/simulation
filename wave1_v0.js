@@ -1,10 +1,12 @@
 let random;
+let particles;
 // const birthday = [0.6232269641761368, 0.18189242240200354, 0.15374882066499196];
 // const birthday = [2024, 4, 14];
 // const birthday = [1989, 12, 6];
 // const multiplier = 0.0666;
 // const matrix = [Math.random(), Math.random(), Math.random()];
-function draw(input) {
+
+function waveFunction(input) {
   const {
     amplitude,
     frequency,
@@ -15,42 +17,32 @@ function draw(input) {
     precision,
     entropy,
   } = input;
-  const canvas = document.getElementById("waveCanvas");
-  const ctx = canvas.getContext("2d");
-  // const waveData = simulateWaveFunction(input);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const scaleFactor = canvas.width / (2 * Math.PI); // Scale factor based on canvas width
-
   function round(value, p = precision) {
     const newValue = value + value * random;
     return parseFloat(newValue.toFixed(p));
   }
 
-  const wavePoints = [];
+  const particles = [];
   const step = (2 * Math.PI) / points;
   // console.log({ entropy, random, precision });
   for (let i = 0; i < points; i++) {
     random = (entropy * i * phase) / points / 100;
 
-    // const matrix = birthday.map(
-    //   (value) => (value / birthday[0]) * Math.random()
-    // );
-    //   console.log(entropy, i, random);
     const x = round(i * step);
     const y = round(amplitude * Math.sin(frequency * x + phase));
     const a = Math.abs(round(1 - Math.abs(y) / amplitude)); // Alpha value based on amplitude
     const r = round(255 * random * Math.random(), 0);
     const g = round(255 * random * Math.random(), 0);
     const b = round(255 * random * Math.random(), 0);
-    const point = { x, y, r, g, b, a };
-    wavePoints.push(point);
+    const particle = { x, y, r, g, b, a };
+    particles.push(particle);
   }
-  console.log("Last Random", random, wavePoints[0]);
-  const crop = wavePoints.filter((point) => {
-    const from = { x: 0, y: 0 };
-    const to = { x: 100, y: 100 };
+  console.log("Last Random", random, particles[0]);
+  return particles;
+}
 
+function crop(particles, from = { x: 0, y: 0 }, to = { x: 100, y: 100 }) {
+  return particles.filter((point) => {
     return (
       point.x >= from.x &&
       point.x <= to.x &&
@@ -58,12 +50,19 @@ function draw(input) {
       point.y <= to.y
     );
   });
+}
 
-  const render = wavePoints; // crop;
+function draw(particles, size) {
+  const canvas = document.getElementById("waveCanvas");
+  const ctx = canvas.getContext("2d");
+  // const waveData = simulateWaveFunction(input);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  render.forEach((point) => {
+  const scaleFactor = canvas.width / (2 * Math.PI); // Scale factor based on canvas width
+
+  particles.forEach((point) => {
     const { x, y, r, g, b, a } = point;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`; // Set color with alpha from point
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`; // Set color with alpha from point
     ctx.fillRect(
       x * scaleFactor,
       Math.round(y + canvas.height / 2),
@@ -98,7 +97,7 @@ function updateValues() {
   sessionStorage.setItem("precision", precisionSlider.value);
   sessionStorage.setItem("entropy", entropySlider.value);
 
-  draw({
+  particles = waveFunction({
     amplitude: +amplitudeSlider.value,
     frequency: +frequencySlider.value,
     phase: +phaseSlider.value,
@@ -108,6 +107,8 @@ function updateValues() {
     precision: +precisionSlider.value,
     entropy: +entropySlider.value,
   });
+
+  draw(particles, sizeSlider.value);
 }
 
 // Initialize and add listeners to sliders
