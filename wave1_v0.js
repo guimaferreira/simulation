@@ -1,10 +1,15 @@
 let random;
 let particles;
-// const birthday = [0.6232269641761368, 0.18189242240200354, 0.15374882066499196];
-// const birthday = [2024, 4, 14];
-// const birthday = [1989, 12, 6];
-// const multiplier = 0.0666;
-// const matrix = [Math.random(), Math.random(), Math.random()];
+let input;
+
+const canvas = document.getElementById("waveCanvas");
+const ctx = canvas.getContext("2d");
+let offsetX = 0,
+  offsetY = 0,
+  scale = 1;
+let isDragging = false,
+  lastX = 0,
+  lastY = 0;
 
 function waveFunction(input) {
   const {
@@ -52,7 +57,7 @@ function crop(particles, from = { x: 0, y: 0 }, to = { x: 100, y: 100 }) {
   });
 }
 
-function draw(particles, size) {
+function _draw(particles, size) {
   const canvas = document.getElementById("waveCanvas");
   const ctx = canvas.getContext("2d");
   // const waveData = simulateWaveFunction(input);
@@ -68,6 +73,25 @@ function draw(particles, size) {
       Math.round(y + canvas.height / 2),
       size,
       size
+    );
+  });
+}
+
+function draw(particles, input) {
+  const { size, opacity } = input;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const scaleFactor = canvas.width / (2 * Math.PI);
+
+  particles.forEach((point) => {
+    const { x, y, r, g, b, a } = point;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${
+      a * input.opacity * input.opacity
+    })`;
+    ctx.fillRect(
+      (x * scaleFactor + offsetX) * scale,
+      Math.round((y + canvas.height / 2 + offsetY) * scale),
+      input.size * scale,
+      input.size * scale
     );
   });
 }
@@ -97,7 +121,7 @@ function updateValues() {
   sessionStorage.setItem("precision", precisionSlider.value);
   sessionStorage.setItem("entropy", entropySlider.value);
 
-  particles = waveFunction({
+  input = {
     amplitude: +amplitudeSlider.value,
     frequency: +frequencySlider.value,
     phase: +phaseSlider.value,
@@ -106,9 +130,11 @@ function updateValues() {
     opacity: +opacitySlider.value,
     precision: +precisionSlider.value,
     entropy: +entropySlider.value,
-  });
+  };
 
-  draw(particles, sizeSlider.value);
+  particles = waveFunction(input);
+
+  draw(particles, input);
 }
 
 // Initialize and add listeners to sliders
@@ -163,3 +189,55 @@ window.onload = function () {
   setSliderValues();
   updateValues(); // Draw initial wave
 };
+
+canvas.addEventListener("mousedown", (e) => {
+  isDragging = true;
+  lastX = e.offsetX;
+  lastY = e.offsetY;
+});
+
+canvas.addEventListener("mousemove", (e) => {
+  if (isDragging) {
+    offsetX += e.offsetX - lastX;
+    offsetY += e.offsetY - lastY;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+    draw(particles, input);
+  }
+});
+
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+});
+
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  scale *= e.deltaY > 0 ? 0.9 : 1.1;
+  draw(particles, input);
+});
+
+// Touch events for mobile users
+canvas.addEventListener("touchstart", (e) => {
+  const touch = e.touches[0];
+  isDragging = true;
+  lastX = touch.pageX;
+  lastY = touch.pageY;
+  e.preventDefault();
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  if (isDragging && e.touches.length == 1) {
+    // Single touch interaction
+    const touch = e.touches[0];
+    offsetX += touch.pageX - lastX;
+    offsetY += touch.pageY - lastY;
+    lastX = touch.pageX;
+    lastY = touch.pageY;
+    draw(particles, input);
+  }
+  e.preventDefault();
+});
+
+canvas.addEventListener("touchend", () => {
+  isDragging = false;
+});
