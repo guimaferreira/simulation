@@ -1,10 +1,9 @@
 window.onload = function () {
+  console.log("Wave1_v0.js loaded");
   const zoomFactor = 0.05;
   let random;
   let particles = [];
   let input;
-  let area;
-  let partcilesOfInterst = [];
   const canvas = document.getElementById("waveCanvas");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -12,21 +11,59 @@ window.onload = function () {
   let offsetX = 0,
     offsetY = 0,
     scale = 1;
+
   let isDragging = false,
     lastX = 0,
     lastY = 0;
   const { width, height } = canvas;
-  console.log({ width, height });
+  let center = [width / 2, height / 2];
+  let currentCenter = center;
+  let area = [0, 0, width, height];
+  let matrixArea = Array.from(area);
+
+  canvas.addEventListener("mousedown", (e) => {
+    isDragging = true;
+    lastX = e.offsetX;
+    lastY = e.offsetY;
+  });
+
+  canvas.addEventListener("mousemove", (e) => {
+    if (isDragging) {
+      offsetX += e.offsetX - lastX;
+      offsetY += e.offsetY - lastY;
+      lastX = e.offsetX;
+      lastY = e.offsetY;
+      currentCenter = [center[0] + offsetX, center[1] + offsetY];
+      setArea();
+    }
+  });
+
+  function calculateArea(scale) {
+    const [x, y] = currentCenter;
+
+    // Calculate the width and height of the area based on the scale
+    const scaledWidth = (width * scale) / 100;
+    const scaledHeight = (height * scale) / 100;
+
+    // Calculate the starting (top-left) and ending (bottom-right) points of the rectangle
+    const fromX = x - scaledWidth / 2;
+    const fromY = y - scaledHeight / 2;
+    const toX = x + scaledWidth / 2;
+    const toY = y + scaledHeight / 2;
+
+    return [fromX, fromY, toX, toY];
+  }
+
+  canvas.addEventListener("mouseup", () => {
+    isDragging = false;
+  });
 
   function setArea(matrix) {
-    const [fromX, fromY, toX, toY] = matrix;
-    console.log("Area", matrix);
+    matrixArea = matrix;
+    const [fromX, fromY, toX, toY] = calculateArea(input.scale);
+
     area = { from: { x: fromX, y: fromY }, to: { x: toX, y: toY } };
-    // if (scale !== input.scale) {
-    //   scale = input.scale;
-    //   const scaleFactor = 1 + input.scale * zoomFactor;
-    //   area = newArea = calculateArea(scaleFactor);
-    // }
+    console.log("Area", area);
     draw(particles, input, area);
   }
 
@@ -77,26 +114,8 @@ window.onload = function () {
     });
   }
 
-  function calculateArea(scale) {
-    const centerX = (area.from.x + area.to.x) / 2;
-    const centerY = (area.from.y + area.to.y) / 2;
-    const width = (area.to.x - area.from.x) / scale;
-    const height = (area.to.y - area.from.y) / scale;
-    return [
-      centerX - width / 2,
-      centerY - height / 2,
-      centerX + width / 2,
-      centerY + height / 2,
-    ];
-  }
-
   function draw(particles, input) {
     const { size, opacity, scale } = input;
-    if (!area) {
-      setArea([0, 0, canvas.width, canvas.height]);
-    }
-
-    // particles = crop(particles, area);
 
     const { from, to } = area;
     const areaWidth = to.x - from.x;
@@ -108,23 +127,37 @@ window.onload = function () {
 
     let rendered = 0;
 
+    const centerSize = 1 * scale;
+    const centerHalf = centerSize / 2;
+
+    ctx.fillStyle = `#FF0000`;
+    ctx.fillRect(
+      currentCenter[0] - centerHalf,
+      currentCenter[1] - centerHalf, // Adjust y-coordinate to be centered based on the height
+      centerSize,
+      centerSize
+    );
+
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
       // Translate and scale particle positions relative to the area area
       const translatedX = (x - from.x) * scaleFactorX;
       const translatedY = (y - from.y) * scaleFactorY;
 
+      const newX = translatedX + offsetX;
+      const newY = translatedY + offsetY + height / 2;
+
       // Only draw particles within the area boundaries
-      // if (x >= from.x && x <= to.x && y >= from.y && y <= to.y) {
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
-      ctx.fillRect(
-        translatedX + offsetX * scale,
-        translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
-        size,
-        size
-      );
-      rendered++;
-      // }
+      if (newX >= from.x && newX <= to.x && newY >= from.y && newY <= to.y) {
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
+        ctx.fillRect(
+          newX, //translatedX + offsetX * scale,
+          newY, //translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
+          size,
+          size
+        );
+        rendered++;
+      }
     });
     console.log("Rendered", rendered);
   }
@@ -170,7 +203,9 @@ window.onload = function () {
 
     particles = waveFunction(input);
 
-    draw(particles, input);
+    const newArea = calculateArea(input.scale);
+    console.log("New Area", newArea);
+    setArea(newArea);
   }
 
   // Initialize and add listeners to sliders
@@ -223,26 +258,6 @@ window.onload = function () {
   }
   setSliderValues();
   updateValues(); // Draw initial wave
-
-  canvas.addEventListener("mousedown", (e) => {
-    isDragging = true;
-    lastX = e.offsetX;
-    lastY = e.offsetY;
-  });
-
-  canvas.addEventListener("mousemove", (e) => {
-    if (isDragging) {
-      offsetX += e.offsetX - lastX;
-      offsetY += e.offsetY - lastY;
-      lastX = e.offsetX;
-      lastY = e.offsetY;
-      draw(particles, input);
-    }
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    isDragging = false;
-  });
 
   // canvas.addEventListener("wheel", (e) => {
   //   e.preventDefault();
