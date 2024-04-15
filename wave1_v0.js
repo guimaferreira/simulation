@@ -150,7 +150,7 @@ window.onload = function () {
         newY <= to.y &&
         a > 0
       ) {
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
+        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity})`;
         ctx.fillRect(
           newX, //translatedX + offsetX * scale,
           newY, //translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
