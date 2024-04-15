@@ -1,5 +1,6 @@
 window.onload = function () {
   console.log("Wave1_v0.js loaded");
+  const pointsExp = 3;
   const zoomFactor = 0.05;
   let random;
   let particles = [];
@@ -74,13 +75,15 @@ window.onload = function () {
       return parseFloat(newValue.toFixed(p));
     }
 
-    const particles = [];
-    const step = (2 * Math.PI) / points; // * (width - 100);
-    // console.log({ entropy, random, precision });
-    for (let i = 0; i < points; i++) {
-      random = (entropy * phase * i) / points + 1;
+    const totalPoints = points ** pointsExp;
 
-      const x = round(i * step);
+    const particles = [];
+    const step = (2 * Math.PI) / totalPoints; // * (width - 100);
+    // console.log({ entropy, random, precision });
+    for (let i = 0; i < totalPoints; i++) {
+      random = (entropy * phase * i) / totalPoints + 1;
+
+      const x = round(i * step * random);
       const y = round(amplitude * Math.sin(frequency * x + phase));
       const a = 1 - Math.abs(y) / 2 / amplitude / 100; // Alpha value based on amplitude
       const r = round((255 * Math.random()) / random, 0);
@@ -167,7 +170,8 @@ window.onload = function () {
     document.getElementById("frequency-value").textContent =
       frequencySlider.value;
     document.getElementById("phase-value").textContent = phaseSlider.value;
-    document.getElementById("points-value").textContent = pointsSlider.value;
+    document.getElementById("points-value").textContent =
+      pointsSlider.value ** pointsExp;
     document.getElementById("size-value").textContent = sizeSlider.value;
     document.getElementById("opacity-value").textContent = opacitySlider.value;
 
