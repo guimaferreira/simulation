@@ -80,7 +80,7 @@ function _draw(particles, size) {
 function draw(particles, input) {
   const { size, opacity } = input;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const scaleFactor = canvas.width / (2 * Math.PI);
+  const scaleFactor = canvas.width / 2; // (2 * Math.PI);
 
   particles.forEach((point) => {
     const { x, y, r, g, b, a } = point;
@@ -90,8 +90,8 @@ function draw(particles, input) {
     ctx.fillRect(
       (x * scaleFactor + offsetX) * scale,
       Math.round((y + canvas.height / 2 + offsetY) * scale),
-      input.size * scale,
-      input.size * scale
+      input.size, // * scale,
+      input.size // * scale
     );
   });
 }
@@ -133,6 +133,7 @@ function updateValues() {
   };
 
   particles = waveFunction(input);
+  particles = crop(particles, { x: 0, y: 0 }, { x: 100, y: 100 });
 
   draw(particles, input);
 }
