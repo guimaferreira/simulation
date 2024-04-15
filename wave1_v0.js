@@ -1,129 +1,77 @@
 let random;
-let input;
 // const birthday = [0.6232269641761368, 0.18189242240200354, 0.15374882066499196];
 // const birthday = [2024, 4, 14];
 // const birthday = [1989, 12, 6];
 // const multiplier = 0.0666;
 // const matrix = [Math.random(), Math.random(), Math.random()];
-
-const canvas = document.getElementById("waveCanvas");
-const ctx = canvas.getContext("2d");
-let offsetX = 0,
-  offsetY = 0,
-  scale = 1;
-let isDragging = false,
-  lastX = 0,
-  lastY = 0;
-
-function calculateWavePoints(input) {
-  const wavePoints = [];
-  const step = (2 * Math.PI) / input.points;
-
-  for (let i = 0; i < input.points; i++) {
-    let random = (input.entropy * i * input.phase) / input.points / 100;
-    const x = round(i * step);
-    const y = round(
-      input.amplitude * Math.sin(input.frequency * x + input.phase)
-    );
-    const a = Math.abs(round(1 - Math.abs(y) / input.amplitude));
-    const r = round(255 * random * Math.random(), 0);
-    const g = round(255 * random * Math.random(), 0);
-    const b = round(255 * random * Math.random(), 0);
-    wavePoints.push({ x, y, r, g, b, a });
-  }
-
-  return wavePoints;
-}
-
 function draw(input) {
+  const {
+    amplitude,
+    frequency,
+    phase,
+    points,
+    size,
+    opacity,
+    precision,
+    entropy,
+  } = input;
+  const canvas = document.getElementById("waveCanvas");
+  const ctx = canvas.getContext("2d");
+  // const waveData = simulateWaveFunction(input);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const scaleFactor = canvas.width / (2 * Math.PI);
-  const wavePoints = [];
-  const step = (2 * Math.PI) / input.points;
 
-  for (let i = 0; i < input.points; i++) {
-    let random = (input.entropy * i * input.phase) / input.points / 100;
+  const scaleFactor = canvas.width / (2 * Math.PI); // Scale factor based on canvas width
+
+  function round(value, p = precision) {
+    const newValue = value + value * random;
+    return parseFloat(newValue.toFixed(p));
+  }
+
+  const wavePoints = [];
+  const step = (2 * Math.PI) / points;
+  // console.log({ entropy, random, precision });
+  for (let i = 0; i < points; i++) {
+    random = (entropy * i * phase) / points / 100;
+
+    // const matrix = birthday.map(
+    //   (value) => (value / birthday[0]) * Math.random()
+    // );
+    //   console.log(entropy, i, random);
     const x = round(i * step);
-    const y = round(
-      input.amplitude * Math.sin(input.frequency * x + input.phase)
-    );
-    const a = Math.abs(round(1 - Math.abs(y) / input.amplitude));
+    const y = round(amplitude * Math.sin(frequency * x + phase));
+    const a = Math.abs(round(1 - Math.abs(y) / amplitude)); // Alpha value based on amplitude
     const r = round(255 * random * Math.random(), 0);
     const g = round(255 * random * Math.random(), 0);
     const b = round(255 * random * Math.random(), 0);
-    wavePoints.push({ x, y, r, g, b, a });
+    const point = { x, y, r, g, b, a };
+    wavePoints.push(point);
   }
+  console.log("Last Random", random, wavePoints[0]);
+  const crop = wavePoints.filter((point) => {
+    const from = { x: 0, y: 0 };
+    const to = { x: 100, y: 100 };
 
-  wavePoints.forEach((point) => {
+    return (
+      point.x >= from.x &&
+      point.x <= to.x &&
+      point.y >= from.y &&
+      point.y <= to.y
+    );
+  });
+
+  const render = wavePoints; // crop;
+
+  render.forEach((point) => {
     const { x, y, r, g, b, a } = point;
-    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${
-      a * input.opacity * input.opacity
-    })`;
+    ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`; // Set color with alpha from point
     ctx.fillRect(
-      (x * scaleFactor + offsetX) * scale,
-      Math.round((y + canvas.height / 2 + offsetY) * scale),
-      input.size * scale,
-      input.size * scale
+      x * scaleFactor,
+      Math.round(y + canvas.height / 2),
+      size,
+      size
     );
   });
 }
-
-function round(value, p = precision) {
-  const newValue = value + value * random;
-  return parseFloat(newValue.toFixed(p));
-}
-
-canvas.addEventListener("mousedown", (e) => {
-  isDragging = true;
-  lastX = e.offsetX;
-  lastY = e.offsetY;
-});
-
-canvas.addEventListener("mousemove", (e) => {
-  if (isDragging) {
-    offsetX += e.offsetX - lastX;
-    offsetY += e.offsetY - lastY;
-    lastX = e.offsetX;
-    lastY = e.offsetY;
-    draw(input);
-  }
-});
-
-canvas.addEventListener("mouseup", () => {
-  isDragging = false;
-});
-
-canvas.addEventListener("wheel", (e) => {
-  e.preventDefault();
-  scale *= e.deltaY > 0 ? 0.9 : 1.1;
-  draw(input);
-});
-
-// Touch events for mobile users
-canvas.addEventListener("touchstart", (e) => {
-  const touch = e.touches[0];
-  isDragging = true;
-  lastX = touch.pageX;
-  lastY = touch.pageY;
-  e.preventDefault();
-});
-
-canvas.addEventListener("touchmove", (e) => {
-  if (isDragging && e.touches.length == 1) {
-    // Single touch interaction
-    const touch = e.touches[0];
-    offsetX += touch.pageX - lastX;
-    offsetY += touch.pageY - lastY;
-    lastX = touch.pageX;
-    lastY = touch.pageY;
-    draw(input);
-  }
-  e.preventDefault();
-});
-
-canvas.addEventListener("touchend", () => {
-  isDragging = false;
-});
 
 // Update all values from the sliders
 function updateValues() {
@@ -150,7 +98,7 @@ function updateValues() {
   sessionStorage.setItem("precision", precisionSlider.value);
   sessionStorage.setItem("entropy", entropySlider.value);
 
-  input = {
+  draw({
     amplitude: +amplitudeSlider.value,
     frequency: +frequencySlider.value,
     phase: +phaseSlider.value,
@@ -159,7 +107,7 @@ function updateValues() {
     opacity: +opacitySlider.value,
     precision: +precisionSlider.value,
     entropy: +entropySlider.value,
-  };
+  });
 }
 
 // Initialize and add listeners to sliders
@@ -213,6 +161,4 @@ function setSliderValues() {
 window.onload = function () {
   setSliderValues();
   updateValues(); // Draw initial wave
-  console.log(input);
-  draw(input);
 };
