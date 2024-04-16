@@ -1,5 +1,5 @@
 window.onload = function () {
-  console.log("Wave1_v0.js loaded");
+  // console.log("Wave1_v0.js loaded");
   const pointsExp = 3;
   const zoomFactor = 0.05;
   let random;
@@ -64,7 +64,7 @@ window.onload = function () {
     const [fromX, fromY, toX, toY] = calculateArea(input.scale);
 
     area = { from: { x: fromX, y: fromY }, to: { x: toX, y: toY } };
-    console.log("Area", area);
+    // console.log("Area", area);
     draw(particles, input, area);
   }
 
@@ -92,7 +92,7 @@ window.onload = function () {
       const particle = { x, y, r, g, b, a };
       particles.push(particle);
     }
-    console.log("Last Random", random, particles[particles.length - 1]);
+    // console.log("Last Random", random, particles[particles.length - 1]);
     return particles;
   }
 
@@ -132,15 +132,14 @@ window.onload = function () {
       centerSize
     );
 
+    let cluster = {};
+    console.time("Drawing");
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
-      // Translate and scale particle positions relative to the area area
-      const translatedX = (x - from.x) * scaleFactorX;
-      const translatedY = (y - from.y) * scaleFactorY;
 
-      const newX = translatedX + offsetX;
-      const newY = translatedY + offsetY + height / 2;
-      // ctx.globalCompositeOperation = "soft-light";
+      function isInside(x, y, from, to) {
+        return x >= from.x && x <= to.x && y >= from.y && y <= to.y;
+      }
 
       function isBlack(r, g, b) {
         return r === 0 && g === 0 && b === 0;
@@ -148,23 +147,44 @@ window.onload = function () {
 
       // Only draw particles within the area boundaries
       if (
-        newX >= from.x &&
-        newX <= to.x &&
-        newY >= from.y &&
-        newY <= to.y &&
+        isInside(x, y, from, to) &&
         a > 0 && //  Don't calculate alpha 0 particles
         !isBlack(r, g, b) // Don't draw black particles
       ) {
+        // Translate and scale particle positions relative to the area area
+        const translatedX = (x - from.x) * scaleFactorX;
+        const translatedY = (y - from.y) * scaleFactorY;
+
+        const newX = translatedX + offsetX;
+        const newY = translatedY + offsetY + height / 2;
+        // ctx.globalCompositeOperation = "soft-light";
+
+        // console.log({ newX, newY, x, y, from, to, areaWidth, areaHeight });
+
+        point.cluster = [Math.round(newX), Math.round(newY)];
+
+        if (cluster[point.cluster[0]]) {
+          cluster[point.cluster[0]][point.cluster[1]] =
+            (cluster[point.cluster[0]][point.cluster[1]] || 0) + 1;
+
+          return;
+        } else {
+          cluster[point.cluster[0]] = {
+            [point.cluster[1]]: 1,
+          };
+        }
+
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a * opacity * opacity})`;
         ctx.fillRect(
-          newX, //translatedX + offsetX * scale,
-          newY, //translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
+          point.cluster[0], //translatedX + offsetX * scale,
+          point.cluster[1], //translatedY + offsetY * scale + height / 2, // Adjust y-coordinate to be centered based on the height
           size,
           size
         );
         rendered++;
       }
     });
+    console.timeEnd("Drawing");
     console.log("Rendered", rendered);
   }
 
@@ -211,7 +231,7 @@ window.onload = function () {
     particles = waveFunction(input);
 
     const newArea = calculateArea(input.scale);
-    console.log("New Area", newArea);
+    // console.log("New Area", newArea);
     setArea(newArea);
   }
 
