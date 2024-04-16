@@ -138,6 +138,7 @@ window.onload = function () {
       const { x, y, r, g, b, a } = point;
 
       function isInside(x, y, from, to) {
+        y += height / 2;
         return x >= from.x && x <= to.x && y >= from.y && y <= to.y;
       }
 
@@ -156,7 +157,7 @@ window.onload = function () {
         const translatedY = (y - from.y) * scaleFactorY;
 
         const newX = translatedX + offsetX;
-        const newY = translatedY + offsetY + height / 2;
+        const newY = translatedY + offsetY + height / 2; // Adjust y-coordinate to be centered based on the height
         // ctx.globalCompositeOperation = "soft-light";
 
         // console.log({ newX, newY, x, y, from, to, areaWidth, areaHeight });
