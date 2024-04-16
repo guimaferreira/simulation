@@ -1,4 +1,4 @@
-const pointsExp = 3;
+const pointsExp = 3.5;
 
 module.exports = function waveFunction(input) {
   const {
@@ -15,6 +15,7 @@ module.exports = function waveFunction(input) {
 
   function round(value, p = precision) {
     const newValue = value + value * random;
+    return newValue;
     return parseFloat(newValue.toFixed(p));
   }
 
@@ -34,11 +35,11 @@ module.exports = function waveFunction(input) {
   console.log({ step });
   // console.log({ entropy, random, precision });
   for (let i = 0; i < totalPoints; i++) {
-    random = (entropy * phase * i) / totalPoints + 1;
+    random = (entropy * phase * i) / totalPoints / +1;
 
-    const x = round(i * step * random);
+    const x = round(i * step * random * Math.random());
     const y = round(amplitude * Math.sin(frequency * x + phase));
-    const a = 1 - Math.abs(y) / 2 / amplitude / 100; // Alpha value based on amplitude
+    const a = 1 - Math.abs(y) / 2 / amplitude / 10000; // Alpha value based on amplitude
     const r = round((255 * Math.random()) / random, 0);
     const g = round((255 * Math.random()) / random, 0);
     const b = round((255 * Math.random()) / random, 0);
