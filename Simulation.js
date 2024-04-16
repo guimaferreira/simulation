@@ -3,7 +3,7 @@ const WaveFunction = require("./src/WaveFunction");
 window.onload = function () {
   // console.log("Wave1_v0.js loaded");
   const pointsExp = 3.5;
-  const zoomFactor = 3.5;
+  const zoomFactor = 3;
   let particles = [];
   let input;
   const canvas = document.getElementById("waveCanvas");
@@ -114,8 +114,10 @@ window.onload = function () {
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
 
-      const newX = x * scaleFactor + offsetX;
-      const newY = y * scaleFactor + offsetY + height / 2;
+      let newX = x * scaleFactor + offsetX;
+      let newY = y * scaleFactor + offsetY + height / 2;
+      newX = newX - 2;
+      newY = newY - 2;
 
       function isInside() {
         return (
