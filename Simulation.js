@@ -2,9 +2,8 @@ const WaveFunction = require("./src/WaveFunction");
 
 window.onload = function () {
   // console.log("Wave1_v0.js loaded");
-  const pointsExp = 3;
-  const zoomFactor = 0.05;
-  let random;
+  const pointsExp = 3.5;
+  const zoomFactor = 3.5;
   let particles = [];
   let input;
   const canvas = document.getElementById("waveCanvas");
@@ -34,8 +33,8 @@ window.onload = function () {
     if (isDragging) {
       offsetX += e.offsetX - lastX;
       offsetY += e.offsetY - lastY;
-      lastX = e.offsetX;
-      lastY = e.offsetY;
+      lastX = e.offsetX * scale;
+      lastY = e.offsetY * scale;
       currentCenter = [center[0] + offsetX, center[1] + offsetY];
       setArea();
     }
@@ -86,6 +85,8 @@ window.onload = function () {
     console.time("Drawing");
     const { size, opacity, scale } = input;
 
+    const scaleFactor = scale ** zoomFactor;
+
     const areaOfInterest = [
       0 + offsetX,
       0 + offsetY, // Adjust y-coordinate to be centered based on the height
@@ -99,7 +100,7 @@ window.onload = function () {
       areaOfInterest[3] - offsetY,
     ];
 
-    console.log("Area of interest", areaOfInterest);
+    console.log("Area of interest", areaOfInterest, offsetX, offsetY);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -113,15 +114,15 @@ window.onload = function () {
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
 
-      const newX = x + offsetX;
-      const newY = y + offsetY + height / 2;
+      const newX = x * scaleFactor + offsetX;
+      const newY = y * scaleFactor + offsetY + height / 2;
 
       function isInside() {
         return (
-          x >= fixedArea[0] &&
-          y >= fixedArea[1] - height / 2 &&
-          x <= fixedArea[2] &&
-          y <= fixedArea[3] - height / 2
+          newX >= fixedArea[0] &&
+          newY >= fixedArea[1] - height / 2 &&
+          newX <= fixedArea[2] &&
+          newY <= fixedArea[3]
         );
       }
 
@@ -135,7 +136,7 @@ window.onload = function () {
         a > 0 && //  Don't calculate alpha 0 particles
         !isBlack(r, g, b) // Don't draw black particles
       ) {
-        point.cluster = [Math.ceil(newX), Math.ceil(newY)];
+        point.cluster = [newX, newY];
 
         if (cluster[point.cluster[0]]) {
           cluster[point.cluster[0]][point.cluster[1]] =
@@ -159,7 +160,15 @@ window.onload = function () {
       }
     });
     console.timeEnd("Drawing");
-    console.log("Rendered", rendered);
+    console.log(
+      "Rendered",
+      rendered,
+      "Clusters",
+      Object.keys(cluster).reduce(
+        (acc, key) => acc + Object.keys(cluster[key]).length,
+        0
+      )
+    );
     console.timeEnd("Draw");
   }
 
