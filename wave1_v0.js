@@ -109,37 +109,52 @@ window.onload = function () {
   }
 
   function draw(particles, input) {
+    console.time("Drawing");
     const { size, opacity, scale } = input;
 
-    const { from, to } = area;
-    const areaWidth = to.x - from.x;
-    const areaHeight = to.y - from.y;
+    const areaOfInterest = [
+      0 + offsetX,
+      0 + offsetY, // Adjust y-coordinate to be centered based on the height
+      width + offsetX,
+      height + offsetY,
+    ];
+    const fixedArea = [
+      areaOfInterest[0] - offsetX,
+      areaOfInterest[1] - offsetY,
+      areaOfInterest[2] - offsetX,
+      areaOfInterest[3] - offsetY,
+    ];
+
+    console.log("Area of interest", areaOfInterest);
+
+    // const { from, to } = area;
+    // const areaWidth = to.x - from.x;
+    // const areaHeight = to.y - from.y;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const scaleFactorX = canvas.width / areaWidth; // Adjust scale factor based on area width
-    const scaleFactorY = canvas.height / areaHeight; // Adjust scale factor based on area height
+    // const scaleFactorX = canvas.width / areaWidth; // Adjust scale factor based on area width
+    // const scaleFactorY = canvas.height / areaHeight; // Adjust scale factor based on area height
 
     let rendered = 0;
 
-    const centerSize = 1 * scale;
-    const centerHalf = centerSize / 2;
-
-    ctx.fillStyle = `rgba(0, 255, 0, 0.1)`;
-    ctx.fillRect(
-      currentCenter[0] - centerHalf,
-      currentCenter[1] - centerHalf, // Adjust y-coordinate to be centered based on the height
-      centerSize,
-      centerSize
-    );
+    // ctx.fillStyle = `rgba(0, 255, 0, 0.1)`;
+    // ctx.fillRect(...fixedArea);
 
     let cluster = {};
-    console.time("Drawing");
+    console.time("Draw");
     particles.forEach((point) => {
       const { x, y, r, g, b, a } = point;
 
-      function isInside(x, y, from, to) {
-        y += height / 2;
-        return x >= from.x && x <= to.x && y >= from.y && y <= to.y;
+      const newX = x + offsetX;
+      const newY = y + offsetY + height / 2;
+
+      function isInside() {
+        return (
+          x >= fixedArea[0] &&
+          y >= fixedArea[1] - height / 2 &&
+          x <= fixedArea[2] &&
+          y <= fixedArea[3] - height / 2
+        );
       }
 
       function isBlack(r, g, b) {
@@ -148,21 +163,21 @@ window.onload = function () {
 
       // Only draw particles within the area boundaries
       if (
-        isInside(x, y, from, to) &&
+        isInside() &&
         a > 0 && //  Don't calculate alpha 0 particles
         !isBlack(r, g, b) // Don't draw black particles
       ) {
         // Translate and scale particle positions relative to the area area
-        const translatedX = (x - from.x) * scaleFactorX;
-        const translatedY = (y - from.y) * scaleFactorY;
+        // const translatedX = x - from.x + (currentCenter[0] - width / 2);
+        // const translatedY = y - from.y + (currentCenter[1] - height / 2);
 
-        const newX = translatedX + offsetX;
-        const newY = translatedY + offsetY + height / 2; // Adjust y-coordinate to be centered based on the height
+        // const newX = translatedX + offsetX;
+        // const newY = translatedY + offsetY + height / 2; // Adjust y-coordinate to be centered based on the height
         // ctx.globalCompositeOperation = "soft-light";
 
         // console.log({ newX, newY, x, y, from, to, areaWidth, areaHeight });
 
-        point.cluster = [Math.round(newX), Math.round(newY)];
+        point.cluster = [Math.ceil(newX), Math.ceil(newY)];
 
         if (cluster[point.cluster[0]]) {
           cluster[point.cluster[0]][point.cluster[1]] =
@@ -187,6 +202,7 @@ window.onload = function () {
     });
     console.timeEnd("Drawing");
     console.log("Rendered", rendered);
+    console.timeEnd("Draw");
   }
 
   // Update all values from the sliders
