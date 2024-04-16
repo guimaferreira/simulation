@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "parcel index.html",
+    "v1": "parcel v1.html",
     "build": "parcel build index.html"
   },
   "repository": {
@@ -15,7 +16,8 @@
   "license": "MIT",
   "dependencies": {
     "cannon": "^0.6.2",
-    "three": "^0.126.1"
+    "dat.gui": "^0.7.9",
+    "three": "^0.163.0"
   },
   "devDependencies": {
     "parcel": "^2.12.0",
