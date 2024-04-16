@@ -2,133 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Interactive Wave Function Simulation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wave Function Simulator</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.143.0/build/three.module.js",
+          "OrbitControls": "https://unpkg.com/three@0.143.0/examples/jsm/controls/OrbitControls.js"
+        }
+      }
+    </script>
     <style>
-      body,
-      html {
-        height: 100%;
+      body {
         margin: 0;
-        overflow: hidden;
-        background-color: #000;
       }
       canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        /* max-width: 100vh; */
-      }
-      #controls {
-        position: fixed;
-        top: 40px;
-        right: 10px;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 10px;
-        border-radius: 8px;
-        z-index: 10;
-        width: 33%;
-        display: flex;
-        flex-direction: column;
-      }
-      label {
         display: block;
-        margin: 5px 0;
-      }
-      #toggle-controls {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-        padding: 5px 10px;
-        background: #ddd;
-        border: none;
-        border-radius: 5px;
-        z-index: 10;
-      }
-      .hide {
-        display: none !important;
       }
     </style>
   </head>
   <body>
-    <button
-      id="toggle-controls"
-      onclick="document.querySelector('#controls').classList.toggle('hide');"
-    >
-      ☰ Controls
-    </button>
-    <div id="controls">
-      <label for="amplitude"
-        >Amplitude: <span id="amplitude-value">0</span></label
-      >
-      <input
-        type="range"
-        id="amplitude"
-        min="0"
-        max="100"
-        value="0"
-        step="0.1"
-      />
-
-      <label for="frequency"
-        >Frequency: <span id="frequency-value">0</span></label
-      >
-      <input
-        type="range"
-        id="frequency"
-        min="0"
-        max="1000"
-        value="0"
-        step="0.1"
-      />
-
-      <label for="phase">Phase: <span id="phase-value">0</span></label>
-      <input type="range" id="phase" min="0" max="100" value="0" step="1" />
-
-      <label for="points">Points: <span id="points-value">2000</span></label>
-      <input type="range" id="points" min="0" max="100" value="0" step="1" />
-
-      <label for="size">Size: <span id="size-value">2</span> px</label>
-      <input type="range" id="size" min="1" max="10" value="10" step="1" />
-
-      <label for="opacity">Opacity: <span id="opacity-value">33</span>%</label>
-      <input type="range" id="opacity" min="0" max="100" value="33" step="1" />
-
-      <label for="precision"
-        >precision: <span id="precision-value">100</span>%</label
-      >
-      <input
-        type="range"
-        id="precision"
-        min="0"
-        max="100"
-        value="100"
-        step="1"
-      />
-      <!-- <input
-        type="range"
-        id="offset-x"
-        min="0"
-        max="100"
-        value="100"
-        step="1"
-      />
-      <input
-        type="range"
-        id="offset-y"
-        min="0"
-        max="100"
-        value="100"
-        step="1"
-      /> -->
-
-      <label for="entropy">entropy: <span id="entropy-value">1</span>%</label>
-      <input type="range" id="entropy" min="0" max="100" value="1" step="0.1" />
-      <label for="scale">scale: <span id="scale-value">1</span>%</label>
-      <input type="range" id="scale" min="1" max="100" value="1" step="1" />
-    </div>
-    <canvas id="waveCanvas"></canvas>
-    <script src="Simulation.js"></script>
+    <script src="SimulationThree.js"></script>
   </body>
 </html>
