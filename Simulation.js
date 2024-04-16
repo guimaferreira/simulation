@@ -203,7 +203,7 @@ window.onload = function () {
       scale: +scaleSlider.value,
     };
 
-    particles = WaveFunction(input);
+    particles = WaveFunction({ ...input, width, height });
 
     const newArea = calculateArea(input.scale);
     // console.log("New Area", newArea);
